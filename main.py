@@ -41,7 +41,7 @@ class Spider:
             'dpkcmcGrid:txtPageSize': '200',
         }
         self.__headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36',
         }
         self.session = requests.Session()
         self.__now_lessons_number = 0
@@ -55,7 +55,7 @@ class Spider:
         '''
         request = self.session.get(self.__base_url, headers=self.__headers)
         real_url = request.url
-        if real_url != 'http://218.75.197.123:83/' and real_url != 'http://218.75.197.123:83/index.apsx':   # 湖南工业大学
+        if real_url != 'http://jw1.wzbc.edu.cn/' and real_url != 'http://jw1.wzbc.edu.cn/index.apsx':   # 湖南工业大学
             self.__real_base_url = real_url[:len(real_url) - len('default2.aspx')]
         else:
             if real_url.find('index') > 0:
@@ -69,7 +69,7 @@ class Spider:
         获取验证码
         :return: 验证码
         '''
-        if self.__real_base_url != 'http://218.75.197.123:83/':
+        if self.__real_base_url != 'http://jw1.wzbc.edu.cn/':
             request = self.session.get(self.__real_base_url + 'CheckCode.aspx', headers=self.__headers)
         else:
             request = self.session.get(self.__real_base_url + 'CheckCode.aspx?', headers=self.__headers)
@@ -116,12 +116,12 @@ class Spider:
         '''
         while True:
             data = self.__get_login_data(uid, password)
-            if self.__real_base_url != 'http://218.75.197.123:83/':
-                request = self.session.post(self.__real_base_url + 'default2.aspx', headers=self.__headers, data=data)
+            if self.__real_base_url != 'http://jw1.wzbc.edu.cn/':
+                request = self.session.post(self.__real_base_url + 'Default2.aspx', headers=self.__headers, data=data)
             else:
-                request = self.session.post(self.__real_base_url + 'index.aspx', headers=self.__headers, data=data)
+                request = self.session.post(self.__real_base_url , headers=self.__headers, data=data)
             soup = BeautifulSoup(request.text, 'lxml')
-            if request.status_code != requests.codes.ok:
+            if request.status_code != requests.codes.ok:    #判断是否发送成功
                 print('4XX or 5XX Error,try to login again')
                 time.sleep(0.5)
                 continue
@@ -153,11 +153,12 @@ class Spider:
         data = {
             'xh': self.__uid,
             'xm': self.__name.encode('gb2312'),
-            'gnmkdm': 'N121103',
+            'gnmkdm': 'N121101',
         }
         self.__headers['Referer'] = self.__real_base_url + 'xs_main.aspx?xh=' + self.__uid
         request = self.session.get(self.__real_base_url + 'xf_xsqxxxk.aspx', params=data, headers=self.__headers)
         self.__headers['Referer'] = request.url
+        print(request.text)
         soup = BeautifulSoup(request.text, 'lxml')
         self.__set__VIEWSTATE(soup)
         selected_lessons_pre_tag = soup.find('legend', text='已选课程')
